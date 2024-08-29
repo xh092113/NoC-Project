@@ -1,0 +1,8 @@
+
+packets_injected = 3165                       # Number of packets injected into the network (Count)
+packets_received = 3162                       # Number of packets received by the network (Count)
+average_packet_queueing_latency = 2                       # Average queueing latency of packets ((Tick/Count))
+average_packet_network_latency = 13.557559                       # Average network latency of packets ((Tick/Count))
+average_packet_latency = 15.557559                       # Average latency of packets ((Tick/Count))
+average_hops = 5.269450                       # Average number of hops traversed by packets (Count)
+reception_rate = .00494062500000000000
