@@ -65,6 +65,7 @@ GarnetNetwork::GarnetNetwork(const Params &p)
     : Network(p)
 {
     m_num_rows = p.num_rows;
+    m_num_pods = p.num_pods;
     m_ni_flit_size = p.ni_flit_size;
     m_max_vcs_per_vnet = 0;
     m_buffers_per_data_vc = p.buffers_per_data_vc;
@@ -132,6 +133,12 @@ GarnetNetwork::init()
     } else {
         m_num_rows = -1;
         m_num_cols = -1;
+    }
+    if (getNumPods() > 0) { /// Lab4: FatTree
+        // Only for FatTree topology
+        m_num_pods = getNumPods();
+    } else {
+        m_num_pods = -1;
     }
 
     // FaultModel: declare each router to the fault model

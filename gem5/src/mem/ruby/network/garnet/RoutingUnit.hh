@@ -84,6 +84,8 @@ class RoutingUnit
     int outportComputeFatTreeAdaptive(RouteInfo route,
                              int inport,
                              PortDirection inport_dirn);
+    std::string chooseLeastCongested(std::string basePort, int half_k);
+    int getCongestionLevel(std::string portName);
 
     // Returns true if vnet is present in the vector
     // of vnets or if the vector supports all vnets.

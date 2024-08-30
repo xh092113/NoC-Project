@@ -285,14 +285,16 @@ RoutingUnit::outportComputeFatTree(RouteInfo route,
     PortDirection outport_dirn = "Unknown";
     int k = m_router->get_net_ptr()->getNumPods(); // tree degree, num_pods, k
     int half_k = k / 2;
-
     int num_edge_layer = half_k * k;
     int num_agg_layer = half_k * k;
-    int num_core_layer = (half_k * half_k);
-
+    int num_core_layer = half_k * half_k;
     int my_id = m_router->get_id();
 
+    // This function calculates the next direction if we want to go from 
+    //   the current router to the desired route.dest_router, which must 
+    //   be an edge router. 
     // Determine layer of current router
+
     int my_layer;
     if (my_id < num_edge_layer) {
         my_layer = 0; // EDGE
@@ -302,49 +304,32 @@ RoutingUnit::outportComputeFatTree(RouteInfo route,
         my_layer = 2; // CORE
     }
 
-    int dest_id = route.dest_router;
-
-    int my_pod = my_id / (k * half_k);
-    int my_pos_within_pod = my_id % half_k;
-
-    std::ostringstream ss;
+    // srand((int)time(0));
+    // std :: cout << "my_layer: " << my_layer << " dest_layer: " << dest_layer << std :: endl;
+    // std :: cout << "k: " << k << "num_edge_layer: " << num_edge_layer << std::endl;
+    // std :: cout << "my_id: " << my_id << "dest_id: " << dest_id << std :: endl; 
+    // assert(dest_id < num_edge_layer);
+    
     if (my_layer == 0) { // EDGE
-        if (my_pod == dest_id / (k * half_k)) {
-            // Destination is within the same pod
-            if (dest_id < num_edge_layer) {
-                // Destination is an edge router in the same pod
-                if (my_id == dest_id) {
-                    outport_dirn = "Local";
-                } else {
-                    ss << "Agg" << my_pos_within_pod;
-                    outport_dirn = ss.str();
-                }
-            } else {
-                // Destination is an aggregation router in the same pod
-                ss << "Agg" << (dest_id % half_k);
-                outport_dirn = ss.str();
-            }
-        } else {
-            // Destination is in a different pod, route to my aggregation router
-            ss << "Agg" << my_pos_within_pod;
-            outport_dirn = ss.str();
-        }
+        int my_pos = my_id % half_k;
+        /// Upwards to my aggregation router; Can become adaptive later
+        outport_dirn = "Agg" + std::to_string(my_pos);
     } else if (my_layer == 1) { // AGGREGATION
-        if (my_pod == dest_id / (k * half_k)) {
+        int my_pod = (my_id - num_edge_layer) / half_k;
+        int my_pos = my_id % half_k;
+        int dest_id = route.dest_router;
+        if (dest_id / half_k == my_pod) {
             // Destination is an edge router in the same pod
-            ss << "Edge" << (dest_id % half_k);
-            outport_dirn = ss.str();
+            outport_dirn = "Edge" + std::to_string(dest_id % half_k);
         } else {
-            // Route to appropriate core based on the destination pod and position
-            int core_offset = (dest_id / (k * half_k) * half_k) % num_core_layer;
-            ss << "Core" << (core_offset + (dest_id % half_k) / half_k);
-            outport_dirn = ss.str();
+            // Upwards to my core router; Can become adaptive later
+            outport_dirn = "Core" + std::to_string(my_pos);
         }
     } else if (my_layer == 2) { // CORE
-        // Route down to the correct aggregation router in the destination pod
-        int agg_pod_offset = (dest_id / (k * half_k)) * half_k;
-        ss << "Agg" << ((my_id % half_k) + agg_pod_offset);
-        outport_dirn = ss.str();
+        // Downwards to the correct aggregation router in the destination pod
+        int dest_id = route.dest_router;
+        int dest_pod = dest_id / half_k;
+        outport_dirn = "Agg" + std::to_string(dest_pod);
     } else {
         panic("Invalid router layer determined");
     }
@@ -359,7 +344,92 @@ RoutingUnit::outportComputeFatTreeAdaptive(RouteInfo route,
                                            int inport,
                                            PortDirection inport_dirn)
 {
+    return outportComputeFatTree(route, inport, inport_dirn);
+    // PortDirection outport_dirn = "Unknown";
+    // int k = m_router->get_net_ptr()->getNumPods(); // tree degree, num_pods, k
+    // int half_k = k / 2;
 
+    // int num_edge_layer = half_k * k;
+    // int num_agg_layer = half_k * k;
+    // int num_core_layer = (half_k * half_k);
+
+    // int my_id = m_router->get_id();
+
+    // // Determine layer of current router
+    // int my_layer;
+    // if (my_id < num_edge_layer) {
+    //     my_layer = 0; // EDGE
+    // } else if (my_id < num_edge_layer + num_agg_layer) {
+    //     my_layer = 1; // AGGREGATION
+    // } else {
+    //     my_layer = 2; // CORE
+    // }
+
+    // int dest_id = route.dest_router;
+
+    // int my_pod = my_id / (k * half_k);
+    // int my_pos_within_pod = my_id % half_k;
+
+    // std::ostringstream ss;
+    // if (my_layer == 0) { // EDGE
+    //     if (my_pod == dest_id / (k * half_k)) {
+    //         // Destination is within the same pod
+    //         if (dest_id < num_edge_layer) {
+    //             // Destination is an edge router in the same pod
+    //             if (my_id == dest_id) {
+    //                 outport_dirn = "Local";
+    //             } else {
+    //                 ss << "Agg" << my_pos_within_pod;
+    //                 outport_dirn = chooseLeastCongested(ss.str(), half_k);
+    //             }
+    //         } else {
+    //             // Destination is an aggregation router in the same pod
+    //             outport_dirn = chooseLeastCongested(dest_id, half_k);
+    //         }
+    //     } else {
+    //         // Destination is in a different pod, route to my aggregation router
+    //         outport_dirn = chooseLeastCongested(my_pod, half_k);
+    //     }
+    // } else if (my_layer == 1) { // AGGREGATION
+    //     if (my_pod == dest_id / (k * half_k)) {
+    //         // Destination is an edge router in the same pod
+    //         ss << "Edge" << (dest_id % half_k);
+    //         outport_dirn = ss.str();
+    //     } else {
+    //         // Route to appropriate core based on the destination pod and position
+    //         outport_dirn = chooseLeastCongestedCore(dest_id, half_k, num_core_layer);
+    //     }
+    // } else if (my_layer == 2) { // CORE
+    //     // Route down to the correct aggregation router in the destination pod
+    //     outport_dirn = chooseLeastCongestedAgg(dest_id, half_k, num_agg_layer);
+    // } else {
+    //     panic("Invalid router layer determined");
+    // }
+    
+
+    // return m_outports_dirn2idx[outport_dirn];
+}
+
+// Example helper function to choose the least congested link
+std::string RoutingUnit::chooseLeastCongested(std::string basePort, int half_k) {
+    int min_congestion = INT_MAX;
+    std::string least_congested_port = basePort;
+    for (int i = 0; i < half_k; i++) {
+        std::ostringstream ss;
+        ss << basePort << i;
+        int congestion = getCongestionLevel(ss.str());
+        if (congestion < min_congestion) {
+            min_congestion = congestion;
+            least_congested_port = ss.str();
+        }
+    }
+    return least_congested_port;
+}
+
+int RoutingUnit::getCongestionLevel(std::string portName) {
+    // Retrieve congestion level for the port
+    // This function needs to be implemented based on how congestion data is collected and stored
+    return 0; // Placeholder
 }
 
 } // namespace garnet

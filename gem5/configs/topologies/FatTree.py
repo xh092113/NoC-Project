@@ -93,7 +93,7 @@ class FatTree(SimpleTopology):
             else:
                 remainder_nodes.append(nodes[node_index])
 
-        # Connect each node to the appropriate router
+        # Connect each node to the appropriate router (only to edge routers)
         ext_links = []
         for (i, n) in enumerate(network_nodes):
             cntrl_level, router_id = divmod(i, num_edge_layer)
@@ -177,7 +177,7 @@ class FatTree(SimpleTopology):
                             src_node=routers[agg_out],
                             dst_node=routers[core_in],
                             src_outport=f"Core{core_router_id}",
-                            dst_inport=f"Agg{agg_router_id}",
+                            dst_inport=f"Agg{pod_id}",
                             latency=link_latency,
                             weight=1,
                         )
@@ -191,7 +191,7 @@ class FatTree(SimpleTopology):
                             link_id=link_count,
                             src_node=routers[core_out],
                             dst_node=routers[agg_in],
-                            src_outport=f"Agg{agg_router_id}",
+                            src_outport=f"Agg{pod_id}",
                             dst_inport=f"Core{core_router_id}",
                             latency=link_latency,
                             weight=1,
