@@ -87,10 +87,12 @@ GarnetNetwork::GarnetNetwork(const Params &p)
     }
 
     // record the routers
+    m_router_congestion_values.resize(0); 
     for (std::vector<BasicRouter*>::const_iterator i =  p.routers.begin();
          i != p.routers.end(); ++i) {
         Router* router = safe_cast<Router*>(*i);
         m_routers.push_back(router);
+        m_router_congestion_values.push_back(0); /// Lab4: Initialize congestion values
 
         // initialize the router's network pointers
         router->init_net_ptr(this);

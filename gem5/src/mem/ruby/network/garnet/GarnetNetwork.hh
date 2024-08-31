@@ -160,6 +160,11 @@ class GarnetNetwork : public Network
     void update_traffic_distribution(RouteInfo route);
     int getNextPacketID() { return m_next_packet_id++; }
 
+    /// Lab4: An api for accessing router using id
+    void add_router_congestion_value(int id) { m_router_congestion_values[id]++; }
+    void sub_router_congestion_value(int id) { m_router_congestion_values[id]--; }
+    int get_router_congestion_value(int id) { return m_router_congestion_values[id]; }
+
   protected:
     // Configuration
     int m_num_rows;
@@ -217,6 +222,7 @@ class GarnetNetwork : public Network
 
     std::vector<VNET_type > m_vnet_type;
     std::vector<Router *> m_routers;   // All Routers in Network
+    std::vector<uint32_t> m_router_congestion_values; /// Lab4: All Router congestion values
     std::vector<NetworkLink *> m_networklinks; // All flit links in the network
     std::vector<NetworkBridge *> m_networkbridges; // All network bridges
     std::vector<CreditLink *> m_creditlinks; // All credit links in the network

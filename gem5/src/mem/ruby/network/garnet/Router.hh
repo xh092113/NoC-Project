@@ -128,6 +128,12 @@ class Router : public BasicRouter, public Consumer
     void collateStats();
     void resetStats();
 
+    /// Lab4: Congestion value
+    // void init_congestion_value();
+    // void add_congestion_value();
+    // void sub_congestion_value();
+    // int get_congestion_value();
+
     // For Fault Model:
     bool get_fault_vector(int temperature, float fault_vector[]) {
         return m_network_ptr->fault_model->fault_vector(m_id, temperature,
@@ -146,6 +152,10 @@ class Router : public BasicRouter, public Consumer
     Cycles m_latency;
     uint32_t m_virtual_networks, m_vc_per_vnet, m_num_vcs;
     uint32_t m_bit_width;
+    
+    /// Lab4: Congestion value
+    // uint32_t m_congestion_value;
+
     GarnetNetwork *m_network_ptr;
 
     RoutingUnit routingUnit;

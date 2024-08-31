@@ -85,3 +85,6 @@ class GarnetRouter(BasicRouter):
     width = Param.UInt32(
         Parent.ni_flit_size, "bit width supported by the router"
     )
+    ### Lab4: Add the congestion_status parameter
+    # congestion_status = 0
+

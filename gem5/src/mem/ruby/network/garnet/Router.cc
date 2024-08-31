@@ -59,11 +59,17 @@ Router::Router(const Params &p)
     m_output_unit.clear();
 }
 
+/// Lab4: Congestion value
+// void Router::init_congestion_value() {m_congestion_value = 0;}
+// void Router::add_congestion_value() {m_congestion_value++;}
+// void Router::sub_congestion_value() {m_congestion_value--;}
+// int Router::get_congestion_value() {return m_congestion_value;}
+
 void
 Router::init()
 {
     BasicRouter::init();
-
+    // init_congestion_value();
     switchAllocator.init();
     crossbarSwitch.init();
 }

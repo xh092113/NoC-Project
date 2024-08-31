@@ -46,6 +46,7 @@ class FatTree(SimpleTopology):
     # assuming an equal number of cache and directory cntrls
 
     def makeTopology(self, options, network, IntLink, ExtLink, Router):
+        # Router is the class of router, here it is GarnetRouter
         nodes = self.nodes
 
         num_cpus = options.num_cpus

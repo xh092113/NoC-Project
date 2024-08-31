@@ -84,13 +84,16 @@ class RoutingUnit
     int outportComputeFatTreeAdaptive(RouteInfo route,
                              int inport,
                              PortDirection inport_dirn);
-    std::string chooseLeastCongested(std::string basePort, int half_k);
-    int getCongestionLevel(std::string portName);
-
+    std::string chooseLeastCongested(std::string prefix, int start, int len);
     // Returns true if vnet is present in the vector
     // of vnets or if the vector supports all vnets.
     bool supportsVnet(int vnet, std::vector<int> sVnets);
 
+    /// Lab4: Congestion value
+    // void init_congestion_value(int num_routers);
+    // void add_congestion_value(int router_id);
+    // void sub_congestion_value(int router_id);
+    // int get_congestion_value(int router_id);
 
   private:
     Router *m_router;
@@ -104,6 +107,9 @@ class RoutingUnit
     std::map<int, PortDirection> m_inports_idx2dirn;
     std::map<int, PortDirection> m_outports_idx2dirn;
     std::map<PortDirection, int> m_outports_dirn2idx;
+
+    /// Lab4: Congestion value
+    // std::vector<int> m_congestion_value;
 };
 
 } // namespace garnet

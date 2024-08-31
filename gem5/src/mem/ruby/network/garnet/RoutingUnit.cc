@@ -339,97 +339,115 @@ RoutingUnit::outportComputeFatTree(RouteInfo route,
 
 
 /// lab4: FatTree Adaptive Routing
+
 int
 RoutingUnit::outportComputeFatTreeAdaptive(RouteInfo route,
                                            int inport,
                                            PortDirection inport_dirn)
 {
-    return outportComputeFatTree(route, inport, inport_dirn);
-    // PortDirection outport_dirn = "Unknown";
-    // int k = m_router->get_net_ptr()->getNumPods(); // tree degree, num_pods, k
-    // int half_k = k / 2;
+    PortDirection outport_dirn = "Unknown";
+// printf("outportComputeFatTreeAdaptive\n");
+    int k = m_router->get_net_ptr()->getNumPods(); // tree degree, num_pods, k
+// printf("Step 1\n");
+    int half_k = k / 2;
+    int num_edge_layer = half_k * k;
+    int num_agg_layer = half_k * k;
+    int num_core_layer = half_k * half_k;
+    int my_id = m_router->get_id();
 
-    // int num_edge_layer = half_k * k;
-    // int num_agg_layer = half_k * k;
-    // int num_core_layer = (half_k * half_k);
+    // Add my congestion value
+    m_router->get_net_ptr()->add_router_congestion_value(my_id);
+// printf("Step 2\n");
 
-    // int my_id = m_router->get_id();
+    // This function calculates the next direction if we want to go from 
+    //   the current router to the desired route.dest_router, which must 
+    //   be an edge router. 
+    // Determine layer of current router
 
-    // // Determine layer of current router
-    // int my_layer;
-    // if (my_id < num_edge_layer) {
-    //     my_layer = 0; // EDGE
-    // } else if (my_id < num_edge_layer + num_agg_layer) {
-    //     my_layer = 1; // AGGREGATION
-    // } else {
-    //     my_layer = 2; // CORE
-    // }
+    int my_layer;
+    if (my_id < num_edge_layer) {
+        my_layer = 0; // EDGE
+    } else if (my_id < num_edge_layer + num_agg_layer) {
+        my_layer = 1; // AGGREGATION
+    } else {
+        my_layer = 2; // CORE
+    }
 
-    // int dest_id = route.dest_router;
-
-    // int my_pod = my_id / (k * half_k);
-    // int my_pos_within_pod = my_id % half_k;
-
-    // std::ostringstream ss;
-    // if (my_layer == 0) { // EDGE
-    //     if (my_pod == dest_id / (k * half_k)) {
-    //         // Destination is within the same pod
-    //         if (dest_id < num_edge_layer) {
-    //             // Destination is an edge router in the same pod
-    //             if (my_id == dest_id) {
-    //                 outport_dirn = "Local";
-    //             } else {
-    //                 ss << "Agg" << my_pos_within_pod;
-    //                 outport_dirn = chooseLeastCongested(ss.str(), half_k);
-    //             }
-    //         } else {
-    //             // Destination is an aggregation router in the same pod
-    //             outport_dirn = chooseLeastCongested(dest_id, half_k);
-    //         }
-    //     } else {
-    //         // Destination is in a different pod, route to my aggregation router
-    //         outport_dirn = chooseLeastCongested(my_pod, half_k);
-    //     }
-    // } else if (my_layer == 1) { // AGGREGATION
-    //     if (my_pod == dest_id / (k * half_k)) {
-    //         // Destination is an edge router in the same pod
-    //         ss << "Edge" << (dest_id % half_k);
-    //         outport_dirn = ss.str();
-    //     } else {
-    //         // Route to appropriate core based on the destination pod and position
-    //         outport_dirn = chooseLeastCongestedCore(dest_id, half_k, num_core_layer);
-    //     }
-    // } else if (my_layer == 2) { // CORE
-    //     // Route down to the correct aggregation router in the destination pod
-    //     outport_dirn = chooseLeastCongestedAgg(dest_id, half_k, num_agg_layer);
-    // } else {
-    //     panic("Invalid router layer determined");
-    // }
+    // srand((int)time(0));
+    // std :: cout << "my_layer: " << my_layer << " dest_layer: " << dest_layer << std :: endl;
+    // std :: cout << "k: " << k << "num_edge_layer: " << num_edge_layer << std::endl;
+    // std :: cout << "my_id: " << my_id << "dest_id: " << dest_id << std :: endl; 
+    // assert(dest_id < num_edge_layer);
     
+    if (my_layer == 0) { // EDGE
+        int my_pos = my_id % half_k;
+        int my_pod = my_id / half_k;
+        /// Upwards to an adaptive aggregation router
+// printf("Case 1, my_pod: %d\n", my_pod);
+        std::string least_congested_port = chooseLeastCongested("Agg", num_edge_layer + my_pod * half_k, half_k);
+// printf("least_congested_port: %s\n", least_congested_port.c_str());
+        outport_dirn = least_congested_port;
+    } else if (my_layer == 1) { // AGGREGATION
+        int my_pod = (my_id - num_edge_layer) / half_k;
+        int my_pos = my_id % half_k;
+        int dest_id = route.dest_router;
+        if (dest_id / half_k == my_pod) {
+// printf("Case 2\n");
+            // Destination is an edge router in the same pod
+            outport_dirn = "Edge" + std::to_string(dest_id % half_k);
+        } else {
+            // Upwards to an adaptive aggregation router
+// printf("Case 3\n");
+            std::string least_congested_port = chooseLeastCongested("Core", num_edge_layer + num_agg_layer + my_pos * half_k, half_k);
+// printf("least_congested_port: %s\n", least_congested_port.c_str());
+            outport_dirn = least_congested_port;
+        }
+    } else if (my_layer == 2) { // CORE
+        // Downwards to the correct aggregation router in the destination pod
+        int dest_id = route.dest_router;
+        int dest_pod = dest_id / half_k;
+// printf("Case 4, dest_pod: %d\n", dest_pod);
+        outport_dirn = "Agg" + std::to_string(dest_pod);
+    } else {
+        panic("Invalid router layer determined");
+    }
 
-    // return m_outports_dirn2idx[outport_dirn];
+    // Subtract my congestion value
+    m_router->get_net_ptr()->sub_router_congestion_value(my_id);
+
+    return m_outports_dirn2idx[outport_dirn];
 }
 
-// Example helper function to choose the least congested link
-std::string RoutingUnit::chooseLeastCongested(std::string basePort, int half_k) {
+std::string RoutingUnit::chooseLeastCongested(std::string prefix, int start, int len) {
     int min_congestion = INT_MAX;
-    std::string least_congested_port = basePort;
-    for (int i = 0; i < half_k; i++) {
-        std::ostringstream ss;
-        ss << basePort << i;
-        int congestion = getCongestionLevel(ss.str());
-        if (congestion < min_congestion) {
-            min_congestion = congestion;
-            least_congested_port = ss.str();
+    std::vector<std::string> least_congested_ports;
+    least_congested_ports.resize(0);
+    for (int i = 0; i < len; i++) {
+        std::string current_port = prefix + std::to_string(i);
+        int current_idx = m_outports_dirn2idx[current_port];
+        int current_port_congestion = m_router->get_net_ptr()->get_router_congestion_value(current_idx);
+        if (current_port_congestion < min_congestion) {
+            min_congestion = current_port_congestion;
+            least_congested_ports.resize(0);
+            least_congested_ports.push_back(current_port);
+        }
+        else if (current_port_congestion == min_congestion) {
+            least_congested_ports.push_back(current_port);
         }
     }
-    return least_congested_port;
-}
+    // Randomly select any candidate output link
+    int candidate = rand() % least_congested_ports.size();
+    std::string least_congested_port = least_congested_ports[candidate];
 
-int RoutingUnit::getCongestionLevel(std::string portName) {
-    // Retrieve congestion level for the port
-    // This function needs to be implemented based on how congestion data is collected and stored
-    return 0; // Placeholder
+    if (rand() % 100 < 5) {
+        std :: cout << min_congestion << std :: endl;
+        for (auto port : least_congested_ports) {
+            std :: cout << port << " ";
+        }
+        std :: cout << std :: endl;
+    }
+
+    return least_congested_port;
 }
 
 } // namespace garnet
