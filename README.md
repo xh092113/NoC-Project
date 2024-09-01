@@ -1,8 +1,12 @@
 # Adaptive FatTree
 
+>  **To reproduce the results, run command 'python LT_curve_gather.py' under directory 'gem5'.**
+>
+>  **Slides link: https://www.overleaf.com/read/nnqpvttntkjs#180ac5**
+>
 >  The NoC project for course 'AI+X Computing Acceleration: From Algorithms Development, Analysis, to Deployment'
 >
-> By Xinghan Li & Bowen Yang, IIIS, THU
+>  By Xinghan Li & Bowen Yang, IIIS, THU
 
 ## 1 Topology
 
@@ -45,6 +49,8 @@
 ## 3 Evaluation
 
 > **To reproduce the results, run command 'python LT_curve_gather.py' under directory 'gem5'.**
+>
+> For more detailed results, refer to folder 'Lab4' under directory 'gem5'.
 
 ### 3.1 Topology Comparations
 
