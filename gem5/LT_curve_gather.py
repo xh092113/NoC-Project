@@ -8,7 +8,7 @@ import os
 from os.path import join
 
 ROUTING_MAP = {0:"TABLE", 1:"XY", 3:"DETERMINISTIC", 4:"ADAPTIVE"}
-SAVE_DIR = "/home/ybw/gem5/gem5_lab4/NoC-Project/gem5/Lab4"
+SAVE_DIR = "./Lab4"
 
 def get_title_name(topology, routing_algorithm, num_pods, mesh_rows, num_cpus):
     title_name = f"{topology}_routing_{ROUTING_MAP[routing_algorithm]}"

@@ -439,13 +439,13 @@ std::string RoutingUnit::chooseLeastCongested(std::string prefix, int start, int
     int candidate = rand() % least_congested_ports.size();
     std::string least_congested_port = least_congested_ports[candidate];
 
-    if (rand() % 100 < 5) {
-        std :: cout << min_congestion << std :: endl;
-        for (auto port : least_congested_ports) {
-            std :: cout << port << " ";
-        }
-        std :: cout << std :: endl;
-    }
+    // if (rand() % 100 < 5) {
+    //     std :: cout << min_congestion << std :: endl;
+    //     for (auto port : least_congested_ports) {
+    //         std :: cout << port << " ";
+    //     }
+    //     std :: cout << std :: endl;
+    // }
 
     return least_congested_port;
 }
