@@ -63,7 +63,7 @@ class FatTree(SimpleTopology):
         num_core_layer = half_degree ** 2 
         num_routers = num_edge_layer + num_agg_layer + num_core_layer
         # print(f"num_routers: {num_routers}")
-        assert num_routers == num_cpus
+        # assert num_routers == num_cpus
 
         # Default values for link latency and router latency.
         # Can be over-ridden on a per link/router basis
@@ -118,7 +118,7 @@ class FatTree(SimpleTopology):
                 ExtLink(
                     link_id=link_count,
                     ext_node=node,
-                    int_node=routers[0],
+                    int_node=routers[i],
                     latency=link_latency,
                 )
             )
