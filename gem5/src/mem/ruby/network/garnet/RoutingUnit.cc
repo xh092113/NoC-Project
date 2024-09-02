@@ -436,7 +436,8 @@ std::string RoutingUnit::chooseLeastCongested(std::string prefix, int start, int
         }
     }
     // Randomly select any candidate output link
-    int candidate = rand() % least_congested_ports.size();
+    int layer_id = prefix == "Agg" ? 1 : 2; // offsets
+    int candidate = (rand() + layer_id) % least_congested_ports.size();
     std::string least_congested_port = least_congested_ports[candidate];
 
     // if (rand() % 100 < 5) {
