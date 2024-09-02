@@ -63,12 +63,14 @@
 
 - In conclusion, FatTree's superior handling of dense traffic and its scalability make it a compelling choice for modern network infrastructures. Its consistent performance across varying conditions suggests that it can effectively support the growing demands of data-intensive applications and large-scale network operations.
 
-### 3.2 Routing Comparations
+### 3.2 Routing Congestion and Deadlock-Freeness
 
-- We conducted experiment using different routing algorithm configurations (vanilla deterministic routing as baseline and adaptive routing). The experiment is designed to verify the efficiency of our adaptive routing algorithm, especially when throughput goes up. As the reception rate curves shows that both increase linearly when injection rate increases, **no serious conjestion occurs** in these settings and our experiment is valid.
+- We conducted experiment using different routing algorithm configurations (vanilla deterministic routing as baseline and adaptive routing). The experiment is designed to verify the efficiency of our adaptive routing algorithm, especially when throughput goes up. As the reception rate curves shows that both increase linearly when injection rate increases, **no serious conjestion occurs** in these settings and our experiment is valid, and **no deadlock** occurs during our experiment.
 
 - | ![Routing_average_packet_latency_curve](./gem5/Lab4/Routing_average_packet_latency_curve.jpg) | ![Routing_reception_rate_curve](./gem5/Lab4/Routing_reception_rate_curve.jpg) |
   | ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+### 3.3 Routing Comparations
 
 - The baseline deterministic routing algorithm is designed as: bijectively map each edge router with a output aggregation router, and map each aggregation router with a core router. Whenever a packet goes up from edge layer to aggregation layer or from aggregation layer to core layer, it will pick the specific mapped outport and ignore other $\frac{k}{2}-1$ outports.
 
